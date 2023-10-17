@@ -11,7 +11,7 @@ RUN apk add --no-cache wget cmake make gcc g++ linux-headers openssl-libs-static
 RUN set -ex; \
             mkdir -p /src/libssh/build; \
             cd /src; \
-            wget -O libssh.tar.xz https://www.libssh.org/files/0.10/libssh-0.10.5.tar.xz; \
+            wget -O libssh.tar.xz https://www.libssh.org/files/0.9/libssh-0.9.7.tar.xz; \
             tar -xf libssh.tar.xz -C /src/libssh --strip-components=1; \
             cd /src/libssh/build; \
             cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr \
