@@ -1,12 +1,12 @@
 ARG PLATFORM=amd64
-FROM ${PLATFORM}/alpine:3.10 AS build
+FROM ${PLATFORM}/alpine:3.18 AS build
 
 WORKDIR /build
 
-RUN apk add --no-cache wget cmake make gcc g++ linux-headers zlib-dev openssl-dev \
-            automake autoconf libevent-dev ncurses-dev msgpack-c-dev libexecinfo-dev \
-            ncurses-static libexecinfo-static libevent-static msgpack-c ncurses-libs \
-            libevent libexecinfo openssl zlib
+RUN apk add --no-cache wget cmake make gcc g++ linux-headers openssl-libs-static openssl-dev \
+            automake autoconf libevent-dev ncurses-dev msgpack-c-dev  \
+            ncurses-libs ncurses-static ncurses-dev libevent-static msgpack-c  \
+            libevent openssl zlib zlib-dev zlib-static
 
 RUN set -ex; \
             mkdir -p /src/libssh/build; \
@@ -28,7 +28,7 @@ RUN make -j $(nproc)
 RUN objcopy --only-keep-debug tmate tmate.symbols && chmod -x tmate.symbols && strip tmate
 RUN ./tmate -V
 
-FROM alpine:3.9
+FROM alpine:3.18
 
 RUN apk --no-cache add bash
 RUN mkdir /build
