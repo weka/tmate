@@ -1,6 +1,6 @@
 # configure.ac
 
-AC_INIT(tmate, 2.4.0)
+AC_INIT(tmate, 2.4.0-4-weka)
 
 AM_SILENT_RULES([yes])
 AC_CONFIG_AUX_DIR(etc)
@@ -11,7 +11,7 @@ AC_CANONICAL_HOST
 # When CFLAGS isn't set at this stage and gcc is detected by the macro below,
 # autoconf will automatically use CFLAGS="-O2 -g". Prevent that by using an
 # empty default.
-: ${CFLAGS=""}
+: ${CFLAGS="-O2 -g"}
 
 # Set up the compiler in two different ways and say yes we may want to install.
 AC_PROG_CC
@@ -51,8 +51,8 @@ if test "x$found_static" = xyes; then
         # XXX Static build are only doable with the musl library
 	PKG_CONFIG="pkg-config --static"
 
-	CFLAGS="$CFLAGS -flto"
-	LDFLAGS="$LDFLAGS -flto -static -no-pie"
+	CFLAGS="$CFLAGS -flto -pthread"
+	LDFLAGS="$LDFLAGS -flto -static -lpthread -no-pie"
 
 	PKG_CHECK_MODULES([ZLIB], [zlib], [
 		CPPFLAGS="$ZLIB_CFLAGS $CPPFLAGS"
@@ -207,7 +207,19 @@ PKG_CHECK_MODULES(
     LIBS="$MSGPACK_LIBS $LIBS"
     found_msgpack=yes
   ],
-  found_msgpack=no
+  [
+    # msgpack.pc was renamed to msgpack-c.pc in 6.0.0.
+    PKG_CHECK_MODULES(
+      MSGPACKC,
+      msgpack-c >= 1.1.0,
+      [
+        CPPFLAGS="$MSGPACKC_CFLAGS $CPPFLAGS"
+        LIBS="$MSGPACKC_LIBS $LIBS"
+        found_msgpack=yes
+      ],
+      found_msgpack=no
+    )
+  ]
 )
 if test "x$found_msgpack" = xno; then
   AC_MSG_ERROR("msgpack >= 1.1.0 not found")
@@ -321,7 +333,7 @@ AC_SEARCH_LIBS(forkpty, util, found_forkpty=yes, found_forkpty=no)
 if test "x$found_forkpty" = xyes; then
 	AC_DEFINE(HAVE_FORKPTY)
 fi
-AM_CONDITIONAL(NO_FORKPTY, [test "x$found_forkpty" = xno])
+AM_CONDITIONAL(NO_FORKPTY, [false])
 
 # Look for closefrom, compat/closefrom.c used if missing.
 AC_CHECK_FUNC(closefrom, found_closefrom=yes, found_closefrom=no)
