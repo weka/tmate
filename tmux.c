@@ -282,6 +282,8 @@ main(int argc, char **argv)
 			break;
 		case 'V':
 			printf("%s %s\n", __progname, VERSION);
+			printf("libssh %s\n", ssh_version(0));
+			
 			exit(0);
 		case 'f':
 			set_cfg_file(optarg);
